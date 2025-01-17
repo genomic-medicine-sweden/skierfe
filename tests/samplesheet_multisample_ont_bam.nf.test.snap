@@ -654,7 +654,11 @@
                 "HG002_ONT_B.mosdepth.summary.txt:md5,bcb06b29c22cb6ad200f283e72c29653",
                 "HG002_ONT_B.per-base.d4:md5,6ed0393045059dfcad129a4eb32ffda1",
                 "HG002_ONT_B.regions.bed.gz:md5,1aa62d46a1e6683da3d44c59c502354b",
+<<<<<<< HEAD
                 "HG002_ONT_B.regions.bed.gz.csi:md5,4ae0bcffa913e0d01fad9e56a053fb12",
+=======
+                "HG002_ONT_B.regions.bed.gz.csi:md5,11db27a464f8996bae5521ee7d71c1ce",
+>>>>>>> 05d1fd1 (bump deepvariant version (#535))
                 "HG002_ONT_A_stats.blocks.tsv:md5,fda7110c817668520b340496f34a70f5",
                 "HG002_ONT_A_stats.stats.tsv:md5,f0d8f2ff4399fce2b6e665c7e5b59be8",
                 "HG002_ONT_B_stats.blocks.tsv:md5,ed60b095dba67127aaadf0e706421d99",
