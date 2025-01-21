@@ -1,7 +1,7 @@
 {
     "test profile": {
         "content": [
-            116,
+            124,
             {
                 "ADD_FOUND_IN_TAG": {
                     "bcftools": 1.2,
@@ -59,6 +59,9 @@
                 },
                 "BEDTOOLS_SORT": {
                     "bedtools": "2.31.1"
+                },
+                "CLEAN_SNIFFLES": {
+                    "clean_sniffles": 1.0
                 },
                 "COMPRESS_STRANGER": {
                     "bcftools": 1.2
@@ -183,6 +186,9 @@
                 },
                 "SEVERUS": {
                     "severus": 1.1
+                },
+                "SNIFFLES": {
+                    "sniffles": "1.0.12"
                 },
                 "SOMALIER_EXTRACT": {
                     "somalier": "0.2.18"
@@ -501,8 +507,10 @@
                 "svs/sample/HG002_Revio",
                 "svs/sample/HG002_Revio/HG002_Revio_cnvs.vcf.gz",
                 "svs/sample/HG002_Revio/HG002_Revio_cnvs.vcf.gz.tbi",
-                "svs/sample/HG002_Revio/HG002_Revio_svs.vcf.gz",
-                "svs/sample/HG002_Revio/HG002_Revio_svs.vcf.gz.tbi",
+                "svs/sample/HG002_Revio/HG002_Revio_severus_svs.vcf.gz",
+                "svs/sample/HG002_Revio/HG002_Revio_severus_svs.vcf.gz.tbi",
+                "svs/sample/HG002_Revio/HG002_Revio_sniffles_svs.vcf.gz",
+                "svs/sample/HG002_Revio/HG002_Revio_sniffles_svs.vcf.gz.tbi",
                 "visualization_tracks",
                 "visualization_tracks/HG002_Revio",
                 "visualization_tracks/HG002_Revio/HG002_Revio_hificnv.copynum.bedgraph",
@@ -569,11 +577,7 @@
                 "HG002_Revio.mosdepth.summary.txt:md5,35c51f1ad9d2856d1e6446205f19a8e3",
                 "HG002_Revio.per-base.d4:md5,a4341498b23fdd2b81023499b8c4e1aa",
                 "HG002_Revio.regions.bed.gz:md5,e051f64c7a780d67ea6727a327dd4281",
-<<<<<<< HEAD
-                "HG002_Revio.regions.bed.gz.csi:md5,98ab5f668e864129054ffc1663a980ee",
-=======
                 "HG002_Revio.regions.bed.gz.csi:md5,026eef1c69fb4aa3a1687463fe2088ab",
->>>>>>> 05d1fd1 (bump deepvariant version (#535))
                 "HG002_Revio_stats.blocks.tsv:md5,dc631306f4ff70ff0352994b2a975917",
                 "HG002_Revio_stats.stats.tsv:md5,6adb96784c82826928ebfc4f4726a35d",
                 "HG002_Revio_hificnv.copynum.bedgraph:md5,517bc59c1b235490c79aa8319437b033",
@@ -652,8 +656,12 @@
                     "VcfFile [chromosomes=[chrX, chr16, chr20], sampleCount=1, variantCount=36, phased=false, phasedAutodetect=false]"
                 ],
                 [
-                    "HG002_Revio_svs.vcf.gz",
+                    "HG002_Revio_severus_svs.vcf.gz",
                     "VcfFile [chromosomes=[chrX, chr16], sampleCount=1, variantCount=55, phased=false, phasedAutodetect=false]"
+                ],
+                [
+                    "HG002_Revio_sniffles_svs.vcf.gz",
+                    "VcfFile [chromosomes=[chrX, chr16, chr20], sampleCount=1, variantCount=58, phased=false, phasedAutodetect=false]"
                 ]
             ],
             [
@@ -679,10 +687,6 @@
             "nf-test": "0.9.0",
             "nextflow": "24.10.3"
         },
-<<<<<<< HEAD
-        "timestamp": "2025-01-20T13:47:59.212598571"
-=======
-        "timestamp": "2025-01-17T10:14:03.463029732"
->>>>>>> 05d1fd1 (bump deepvariant version (#535))
+        "timestamp": "2025-01-20T16:08:45.180492677"
     }
 }

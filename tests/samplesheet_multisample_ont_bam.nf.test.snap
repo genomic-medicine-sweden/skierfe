@@ -1,7 +1,7 @@
 {
     "samplesheet_multisample_ont_bam | --preset ONT_R10 --phaser whatshap --alignment_processes 1 --snv_calling_processes 1 --sv_caller sniffles": {
         "content": [
-            125,
+            137,
             {
                 "ADD_FOUND_IN_TAG": {
                     "bcftools": 1.2,
@@ -162,6 +162,9 @@
                 },
                 "SAMTOOLS_MERGE": {
                     "samtools": 1.21
+                },
+                "SEVERUS": {
+                    "severus": 1.1
                 },
                 "SNIFFLES": {
                     "sniffles": "1.0.12"
@@ -543,13 +546,17 @@
                 "svs/sample/HG002_ONT_A",
                 "svs/sample/HG002_ONT_A/HG002_ONT_A_cnvs.vcf.gz",
                 "svs/sample/HG002_ONT_A/HG002_ONT_A_cnvs.vcf.gz.tbi",
-                "svs/sample/HG002_ONT_A/HG002_ONT_A_svs.vcf.gz",
-                "svs/sample/HG002_ONT_A/HG002_ONT_A_svs.vcf.gz.tbi",
+                "svs/sample/HG002_ONT_A/HG002_ONT_A_severus_svs.vcf.gz",
+                "svs/sample/HG002_ONT_A/HG002_ONT_A_severus_svs.vcf.gz.tbi",
+                "svs/sample/HG002_ONT_A/HG002_ONT_A_sniffles_svs.vcf.gz",
+                "svs/sample/HG002_ONT_A/HG002_ONT_A_sniffles_svs.vcf.gz.tbi",
                 "svs/sample/HG002_ONT_B",
                 "svs/sample/HG002_ONT_B/HG002_ONT_B_cnvs.vcf.gz",
                 "svs/sample/HG002_ONT_B/HG002_ONT_B_cnvs.vcf.gz.tbi",
-                "svs/sample/HG002_ONT_B/HG002_ONT_B_svs.vcf.gz",
-                "svs/sample/HG002_ONT_B/HG002_ONT_B_svs.vcf.gz.tbi",
+                "svs/sample/HG002_ONT_B/HG002_ONT_B_severus_svs.vcf.gz",
+                "svs/sample/HG002_ONT_B/HG002_ONT_B_severus_svs.vcf.gz.tbi",
+                "svs/sample/HG002_ONT_B/HG002_ONT_B_sniffles_svs.vcf.gz",
+                "svs/sample/HG002_ONT_B/HG002_ONT_B_sniffles_svs.vcf.gz.tbi",
                 "visualization_tracks",
                 "visualization_tracks/HG002_ONT_A",
                 "visualization_tracks/HG002_ONT_A/HG002_ONT_A_hificnv.copynum.bedgraph",
@@ -654,11 +661,7 @@
                 "HG002_ONT_B.mosdepth.summary.txt:md5,bcb06b29c22cb6ad200f283e72c29653",
                 "HG002_ONT_B.per-base.d4:md5,6ed0393045059dfcad129a4eb32ffda1",
                 "HG002_ONT_B.regions.bed.gz:md5,1aa62d46a1e6683da3d44c59c502354b",
-<<<<<<< HEAD
-                "HG002_ONT_B.regions.bed.gz.csi:md5,4ae0bcffa913e0d01fad9e56a053fb12",
-=======
                 "HG002_ONT_B.regions.bed.gz.csi:md5,11db27a464f8996bae5521ee7d71c1ce",
->>>>>>> 05d1fd1 (bump deepvariant version (#535))
                 "HG002_ONT_A_stats.blocks.tsv:md5,fda7110c817668520b340496f34a70f5",
                 "HG002_ONT_A_stats.stats.tsv:md5,f0d8f2ff4399fce2b6e665c7e5b59be8",
                 "HG002_ONT_B_stats.blocks.tsv:md5,ed60b095dba67127aaadf0e706421d99",
@@ -766,7 +769,11 @@
                     "VcfFile [chromosomes=[chrX, chr16, chr20], sampleCount=1, variantCount=30, phased=false, phasedAutodetect=false]"
                 ],
                 [
-                    "HG002_ONT_A_svs.vcf.gz",
+                    "HG002_ONT_A_severus_svs.vcf.gz",
+                    "VcfFile [chromosomes=[chrX, chr16], sampleCount=1, variantCount=68, phased=false, phasedAutodetect=false]"
+                ],
+                [
+                    "HG002_ONT_A_sniffles_svs.vcf.gz",
                     "VcfFile [chromosomes=[chrX, chr16, chr20], sampleCount=1, variantCount=67, phased=false, phasedAutodetect=false]"
                 ],
                 [
@@ -774,7 +781,11 @@
                     "VcfFile [chromosomes=[chrX, chr16, chr20], sampleCount=1, variantCount=31, phased=false, phasedAutodetect=false]"
                 ],
                 [
-                    "HG002_ONT_B_svs.vcf.gz",
+                    "HG002_ONT_B_severus_svs.vcf.gz",
+                    "VcfFile [chromosomes=[chrX, chr16], sampleCount=1, variantCount=68, phased=false, phasedAutodetect=false]"
+                ],
+                [
+                    "HG002_ONT_B_sniffles_svs.vcf.gz",
                     "VcfFile [chromosomes=[chrX, chr16, chr20], sampleCount=1, variantCount=67, phased=false, phasedAutodetect=false]"
                 ]
             ],
@@ -801,6 +812,6 @@
             "nf-test": "0.9.0",
             "nextflow": "24.10.3"
         },
-        "timestamp": "2025-01-20T13:51:52.759347222"
+        "timestamp": "2025-01-20T16:53:11.742380694"
     }
 }

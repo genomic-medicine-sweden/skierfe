@@ -328,6 +328,12 @@
                     "description": "Institutional config URL link.",
                     "hidden": true,
                     "fa_icon": "fas fa-users-cog"
+                },
+                "publish_unannotated_svs_per_family_and_caller": {
+                    "type": "boolean",
+                    "description": "Publish unannotated SVs per family and caller (these files are only output by default if `--skip_sv_annotation` or `--skip_cnv_calling are active).",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
                 }
             }
         },
@@ -436,7 +442,7 @@
                 "sv_caller": {
                     "type": "string",
                     "default": "severus",
-                    "description": "Which structural variant caller to use (`severus`, `sniffles`)",
+                    "description": "From which SV caller to merge (with CNVs), annotate, rank and filter variants from (`severus` or `sniffles`).",
                     "enum": ["severus", "sniffles"]
                 },
                 "phaser": {

@@ -225,18 +225,18 @@ In general, annotated variant calls are output per family while unannotated call
 
 !!!info "Variant merging strategies"
 
-    SV and CNV calls are output unmerged per sample, while the family files are first merged between samples for SVs and CNVs separately, then the merged SV and CNV files are merged again, with priority given to coordinates from the SV calls.
+    SV and CNV calls are output unmerged per sample, while the family files are first merged between samples for SVs and CNVs separately, then the merged SV and CNV files are merged again, with priority given to coordinates from the SV calls. SV calls are output for all callers, but only variants from one caller (set by `--sv_caller`) are merged with CNVs, then annotated, ranked and filtered.
 
-| Path                                                            | Description                                  | Call SVs           | Call CNVs          | Call SVs & CNVs    |
-| --------------------------------------------------------------- | -------------------------------------------- | ------------------ | ------------------ | ------------------ |
-| `svs/sample/{sample}/{sample}_svs.vcf.gz`                       | VCF file with SVs per sample                 | :white_check_mark: |                    | :white_check_mark: |
-| `svs/sample/{sample}/{sample}_svs.vcf.gz.tbi`                   | VCF file with SVs per sample                 | :white_check_mark: |                    | :white_check_mark: |
-| `svs/sample/{sample}/{sample}_cnvs.vcf.gz`                      | VCF file with CNVs per sample                |                    | :white_check_mark: | :white_check_mark: |
-| `svs/sample/{sample}/{sample}_cnvs.vcf.gz.tbi`                  | VCF file with CNVs per sample                |                    | :white_check_mark: | :white_check_mark: |
-| `svs/family/{family_id}/{family_id}_svs_merged.vcf.gz`          | VCF file with merged SVs per family          | :white_check_mark: |                    |                    |
-| `svs/family/{family_id}/{family_id}_svs_merged.vcf.gz.tbi`      | Index of the merged VCF file                 | :white_check_mark: |                    |                    |
-| `svs/family/{family_id}/{family_id}_cnvs_svs_merged.vcf.gz`     | VCF file with merged CNVs and SVs per family |                    |                    | :white_check_mark: |
-| `svs/family/{family_id}/{family_id}_cnvs_svs_merged.vcf.gz.tbi` | Index of the merged VCF file                 |                    |                    | :white_check_mark: |
+| Path                                                             | Description                                  | Call SVs           | Call CNVs          | Call SVs & CNVs    |
+| ---------------------------------------------------------------- | -------------------------------------------- | ------------------ | ------------------ | ------------------ |
+| `svs/sample/{sample}/{sample}_{sv_caller}_svs.vcf.gz`            | VCF file with SVs per sample                 | :white_check_mark: |                    | :white_check_mark: |
+| `svs/sample/{sample}/{sample}_{sv_caller}_svs.vcf.gz.tbi`        | VCF file with SVs per sample                 | :white_check_mark: |                    | :white_check_mark: |
+| `svs/sample/{sample}/{sample}_cnvs.vcf.gz`                       | VCF file with CNVs per sample                |                    | :white_check_mark: | :white_check_mark: |
+| `svs/sample/{sample}/{sample}_cnvs.vcf.gz.tbi`                   | VCF file with CNVs per sample                |                    | :white_check_mark: | :white_check_mark: |
+| `svs/family/{family_id}/{family_id}_${sv_caller}_svs.vcf.gz`     | VCF file with merged SVs per family          | :white_check_mark: |                    |                    |
+| `svs/family/{family_id}/{family_id}_${sv_caller}_svs.vcf.gz.tbi` | Index of the merged VCF file                 | :white_check_mark: |                    |                    |
+| `svs/family/{family_id}/{family_id}_cnvs_svs_merged.vcf.gz`      | VCF file with merged CNVs and SVs per family |                    |                    | :white_check_mark: |
+| `svs/family/{family_id}/{family_id}_cnvs_svs_merged.vcf.gz.tbi`  | Index of the merged VCF file                 |                    |                    | :white_check_mark: |
 
 #### Annotation
 

@@ -12,47 +12,56 @@ workflow CALL_SVS {
 
     take:
     ch_bam_bai        // channel [mandatory]: [ val(meta), path(bam), path(bai) ]
-    ch_fasta          // channel [mandatory]: [ val(meta), path(fasta) ]
-    ch_fai            // channel [mandatory]: [ val(meta), path(fai) ]
     sv_caller         //     val [mandatory]: Which caller to use
     ch_tandem_repeats // channel  [optional]: [ val(meta), path(bed) ]
-    ch_bed            // channel  [optional]: [ val(meta), path(bed) ]
 
     main:
-    ch_versions     = Channel.empty()
+    ch_versions = Channel.empty()
+    ch_sv_calls = Channel.empty()
 
-    // Call SVs
-    if (sv_caller == "severus") {
+    // Here, we currently want the possiblity to run multiple SV-callers
+    // even though only calls from one caller is used for annotation, ranking and filtering.
+    // In the future these calls could possibly be merged.
 
-        SEVERUS (
-            ch_bam_bai.map { meta, bam, bai -> [ meta, bam, bai, [], [], [] ] },
-            ch_tandem_repeats
-        )
-        ch_versions = ch_versions.mix(SEVERUS.out.versions)
+    // Call SVs with Severus
+    SEVERUS (
+        ch_bam_bai.map { meta, bam, bai -> [ meta, bam, bai, [], [], [] ] },
+        ch_tandem_repeats
+    )
+    ch_versions = ch_versions.mix(SEVERUS.out.versions)
 
+    ch_sv_calls = ch_sv_calls.mix(
         SEVERUS.out.all_vcf
-            .set { ch_vcf }
+        .map { meta , vcf -> [ meta + [ sv_caller: 'severus' ], vcf ] }
+    )
 
-    } else if (sv_caller == "sniffles") {
+    // Call SVs with Sniffles
+    SNIFFLES (
+        ch_bam_bai
+    )
+    ch_versions = ch_versions.mix(SNIFFLES.out.versions)
 
-        SNIFFLES (
-            ch_bam_bai
-        )
-        ch_versions = ch_versions.mix(SNIFFLES.out.versions)
+    CLEAN_SNIFFLES (
+        SNIFFLES.out.vcf
+    )
+    ch_versions = ch_versions.mix(CLEAN_SNIFFLES.out.versions)
 
-        CLEAN_SNIFFLES (
-            SNIFFLES.out.vcf
-        )
-        ch_versions = ch_versions.mix(CLEAN_SNIFFLES.out.versions)
-
+    ch_sv_calls = ch_sv_calls.mix(
         CLEAN_SNIFFLES.out.vcf
-            .set { ch_vcf }
-    }
+        .map { meta , vcf -> [ meta + [ sv_caller: 'sniffles' ], vcf ] }
+    )
+
+    ch_sv_calls
+        .multiMap { meta, vcf ->
+            vcf: [ meta, vcf, [] ]
+            sv_caller: meta.sv_caller
+        }
+        .set { ch_add_found_in_tag_input }
 
     // Annotate with FOUND_IN tag
     ADD_FOUND_IN_TAG (
-        ch_vcf.map { meta, vcf -> [ meta, vcf, [] ] },
-        sv_caller
+        ch_add_found_in_tag_input.vcf,
+        ch_add_found_in_tag_input.sv_caller,
     )
     ch_versions = ch_versions.mix(ADD_FOUND_IN_TAG.out.versions)
 
@@ -80,7 +89,7 @@ workflow CALL_SVS {
     ch_versions = ch_versions.mix(BCFTOOLS_REHEADER.out.versions)
 
     BCFTOOLS_REHEADER.out.vcf
-        .map { meta, vcf -> [ [ 'id': meta.family_id ], vcf ] }
+        .map { meta, vcf -> [ [ 'id': meta.family_id, 'sv_caller': meta.sv_caller ], vcf ] }
         .groupTuple()
         .set { ch_svdb_merge_in }
 
@@ -96,10 +105,18 @@ workflow CALL_SVS {
     ch_versions = ch_versions.mix(TABIX_SVDB_MERGE.out.versions)
 
     emit:
-    sample_vcf     = BCFTOOLS_REHEADER.out.vcf   // channel: [ val(meta), path(vcf) ]
-    sample_tbi     = BCFTOOLS_REHEADER.out.index // channel: [ val(meta), path(tbi) ]
-    family_vcf  = SVDB_MERGE.out.vcf          // channel: [ val(meta), path(vcf) ]
-    family_tbi  = TABIX_SVDB_MERGE.out.tbi    // channel: [ val(meta), path(tbi) ]
-    versions            = ch_versions                 // channel: [ path(versions.yml) ]
+    sample_vcf = filterAndStripCaller(BCFTOOLS_REHEADER.out.vcf, sv_caller)   // channel: [ val(meta), path(vcf) ]
+    sample_tbi = filterAndStripCaller(BCFTOOLS_REHEADER.out.index, sv_caller) // channel: [ val(meta), path(tbi) ]
+    family_vcf = filterAndStripCaller(SVDB_MERGE.out.vcf, sv_caller)          // channel: [ val(meta), path(vcf) ]
+    family_tbi = filterAndStripCaller(TABIX_SVDB_MERGE.out.tbi, sv_caller)    // channel: [ val(meta), path(tbi) ]
+    versions   = ch_versions                                                  // channel: [ path(versions.yml) ]
 }
 
+def filterAndStripCaller(ch_vcf, caller) {
+    ch_vcf.filter { meta, _vcf ->
+            meta.sv_caller == caller
+        }
+        .map { meta, vcf ->
+            [ meta - meta.subMap('sv_caller'), vcf ]
+        }
+}
