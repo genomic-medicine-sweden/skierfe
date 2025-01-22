@@ -711,7 +711,7 @@
                 "HG002_Revio_B.mosdepth.summary.txt:md5,191877ae5228e7880276585557a7b218",
                 "HG002_Revio_B.per-base.d4:md5,e22533485912a648cc708a4851fa4c7d",
                 "HG002_Revio_B.regions.bed.gz:md5,9c4c037139c752c60385d3c0b905af7f",
-                "HG002_Revio_B.regions.bed.gz.csi:md5,d0640255d527e36655281f64e184b02c",
+                "HG002_Revio_B.regions.bed.gz.csi:md5,78d70be812a3d19360a3d51a5fb19432",
                 "HG002_Revio_A_stats.blocks.tsv:md5,62a91b634efa68a74e42141b6312b145",
                 "HG002_Revio_A_stats.stats.tsv:md5,f115ed22f863f2da51151f160ce1bcee",
                 "HG002_Revio_B_stats.blocks.tsv:md5,644b6fa58d13ff899ec3792988cca4f9",
@@ -894,6 +894,6 @@
             "nf-test": "0.9.0",
             "nextflow": "24.10.3"
         },
-        "timestamp": "2025-01-20T16:51:14.256639347"
+        "timestamp": "2025-01-22T16:53:55.170791661"
     }
 }

@@ -33,7 +33,7 @@ jobs:
       matrix:
         NXF_VER:
           - "24.04.2"
-          - "latest-everything"
+          - "latest-stable"
         tags:
           - "samplesheet"
           - "samplesheet_multisample_bam"
