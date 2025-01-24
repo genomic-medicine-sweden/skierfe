@@ -74,7 +74,7 @@ Parameters used to describe centralised config profiles. These should not be edi
 | `config_profile_description` | Institutional config description. | `string` |  |  | True |
 | `config_profile_contact` | Institutional config contact information. | `string` |  |  | True |
 | `config_profile_url` | Institutional config URL link. | `string` |  |  | True |
-| `publish_unannotated_svs_per_family_and_caller` | Publish unannotated SVs per family and caller (these files are only output by default if `--skip_sv_annotation` or `--skip_cnv_calling are active). | `boolean` |  |  | True |
+| `publish_unannotated_svs_and_cnvs_per_family_and_caller` | Publish unannotated SVs and CNVs per family and caller (these files are only output by default if `--skip_sv_annotation` or `--skip_cnv_calling are active). | `boolean` |  |  | True |
 
 ## Generic options
 

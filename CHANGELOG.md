@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#516](https://github.com/genomic-medicine-sweden/nallo/pull/516) - Added beta support for ONT R10 assembly
 - [#531](https://github.com/genomic-medicine-sweden/nallo/pull/531) - Added missing credits to the README
 - [#537](https://github.com/genomic-medicine-sweden/nallo/pull/537) - Added per-base depth output in d4 format from mosdepth
+- [#542](https://github.com/genomic-medicine-sweden/nallo/pull/542) - Added a hidden parameter `--publish_unannotated_svs_and_cnvs_per_family_and_caller`
 
 ### `Changed`
 
@@ -25,10 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Parameters
 
-| Old parameter | New parameter                                     |
-| ------------- | ------------------------------------------------- |
-|               | `--hifiasm_preset`                                |
-|               | `--publish_unannotated_svs_per_family_and_caller` |
+| Old parameter | New parameter                                              |
+| ------------- | ---------------------------------------------------------- |
+|               | `--hifiasm_preset`                                         |
+|               | `--publish_unannotated_svs_and_cnvs_per_family_and_caller` |
 
 > [!NOTE]
 > Parameter has been updated if both old and new parameter information is present.
