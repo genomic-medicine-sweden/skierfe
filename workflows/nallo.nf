@@ -446,11 +446,8 @@ workflow NALLO {
         // If both CNV-calling and SV annotation is off, merged variants are output from here
         CALL_SVS (
             bam_bai,
-            fasta,
-            fai,
             params.sv_caller,
-            ch_tandem_repeats,
-            ch_input_bed
+            ch_tandem_repeats
         )
         ch_versions = ch_versions.mix(CALL_SVS.out.versions)
 

@@ -1,7 +1,7 @@
 {
     "test profile": {
         "content": [
-            116,
+            124,
             {
                 "ADD_FOUND_IN_TAG": {
                     "bcftools": 1.2,
@@ -59,6 +59,9 @@
                 },
                 "BEDTOOLS_SORT": {
                     "bedtools": "2.31.1"
+                },
+                "CLEAN_SNIFFLES": {
+                    "clean_sniffles": 1.0
                 },
                 "COMPRESS_STRANGER": {
                     "bcftools": 1.2
@@ -183,6 +186,9 @@
                 },
                 "SEVERUS": {
                     "severus": 1.1
+                },
+                "SNIFFLES": {
+                    "sniffles": "1.0.12"
                 },
                 "SOMALIER_EXTRACT": {
                     "somalier": "0.2.18"
@@ -501,8 +507,10 @@
                 "svs/sample/HG002_Revio",
                 "svs/sample/HG002_Revio/HG002_Revio_cnvs.vcf.gz",
                 "svs/sample/HG002_Revio/HG002_Revio_cnvs.vcf.gz.tbi",
-                "svs/sample/HG002_Revio/HG002_Revio_svs.vcf.gz",
-                "svs/sample/HG002_Revio/HG002_Revio_svs.vcf.gz.tbi",
+                "svs/sample/HG002_Revio/HG002_Revio_severus_svs.vcf.gz",
+                "svs/sample/HG002_Revio/HG002_Revio_severus_svs.vcf.gz.tbi",
+                "svs/sample/HG002_Revio/HG002_Revio_sniffles_svs.vcf.gz",
+                "svs/sample/HG002_Revio/HG002_Revio_sniffles_svs.vcf.gz.tbi",
                 "visualization_tracks",
                 "visualization_tracks/HG002_Revio",
                 "visualization_tracks/HG002_Revio/HG002_Revio_hificnv.copynum.bedgraph",
@@ -648,8 +656,12 @@
                     "VcfFile [chromosomes=[chrX, chr16, chr20], sampleCount=1, variantCount=36, phased=false, phasedAutodetect=false]"
                 ],
                 [
-                    "HG002_Revio_svs.vcf.gz",
+                    "HG002_Revio_severus_svs.vcf.gz",
                     "VcfFile [chromosomes=[chrX, chr16], sampleCount=1, variantCount=55, phased=false, phasedAutodetect=false]"
+                ],
+                [
+                    "HG002_Revio_sniffles_svs.vcf.gz",
+                    "VcfFile [chromosomes=[chrX, chr16, chr20], sampleCount=1, variantCount=58, phased=false, phasedAutodetect=false]"
                 ]
             ],
             [
@@ -675,6 +687,6 @@
             "nf-test": "0.9.0",
             "nextflow": "24.10.3"
         },
-        "timestamp": "2025-01-20T13:47:59.212598571"
+        "timestamp": "2025-01-22T16:51:53.196320696"
     }
 }

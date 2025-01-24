@@ -1,7 +1,7 @@
 {
     "samplesheet_multisample_ont_bam | --preset ONT_R10 --phaser whatshap --alignment_processes 1 --snv_calling_processes 1 --sv_caller sniffles": {
         "content": [
-            125,
+            137,
             {
                 "ADD_FOUND_IN_TAG": {
                     "bcftools": 1.2,
@@ -162,6 +162,9 @@
                 },
                 "SAMTOOLS_MERGE": {
                     "samtools": 1.21
+                },
+                "SEVERUS": {
+                    "severus": 1.1
                 },
                 "SNIFFLES": {
                     "sniffles": "1.0.12"
@@ -543,13 +546,17 @@
                 "svs/sample/HG002_ONT_A",
                 "svs/sample/HG002_ONT_A/HG002_ONT_A_cnvs.vcf.gz",
                 "svs/sample/HG002_ONT_A/HG002_ONT_A_cnvs.vcf.gz.tbi",
-                "svs/sample/HG002_ONT_A/HG002_ONT_A_svs.vcf.gz",
-                "svs/sample/HG002_ONT_A/HG002_ONT_A_svs.vcf.gz.tbi",
+                "svs/sample/HG002_ONT_A/HG002_ONT_A_severus_svs.vcf.gz",
+                "svs/sample/HG002_ONT_A/HG002_ONT_A_severus_svs.vcf.gz.tbi",
+                "svs/sample/HG002_ONT_A/HG002_ONT_A_sniffles_svs.vcf.gz",
+                "svs/sample/HG002_ONT_A/HG002_ONT_A_sniffles_svs.vcf.gz.tbi",
                 "svs/sample/HG002_ONT_B",
                 "svs/sample/HG002_ONT_B/HG002_ONT_B_cnvs.vcf.gz",
                 "svs/sample/HG002_ONT_B/HG002_ONT_B_cnvs.vcf.gz.tbi",
-                "svs/sample/HG002_ONT_B/HG002_ONT_B_svs.vcf.gz",
-                "svs/sample/HG002_ONT_B/HG002_ONT_B_svs.vcf.gz.tbi",
+                "svs/sample/HG002_ONT_B/HG002_ONT_B_severus_svs.vcf.gz",
+                "svs/sample/HG002_ONT_B/HG002_ONT_B_severus_svs.vcf.gz.tbi",
+                "svs/sample/HG002_ONT_B/HG002_ONT_B_sniffles_svs.vcf.gz",
+                "svs/sample/HG002_ONT_B/HG002_ONT_B_sniffles_svs.vcf.gz.tbi",
                 "visualization_tracks",
                 "visualization_tracks/HG002_ONT_A",
                 "visualization_tracks/HG002_ONT_A/HG002_ONT_A_hificnv.copynum.bedgraph",
@@ -762,7 +769,11 @@
                     "VcfFile [chromosomes=[chrX, chr16, chr20], sampleCount=1, variantCount=30, phased=false, phasedAutodetect=false]"
                 ],
                 [
-                    "HG002_ONT_A_svs.vcf.gz",
+                    "HG002_ONT_A_severus_svs.vcf.gz",
+                    "VcfFile [chromosomes=[chrX, chr16], sampleCount=1, variantCount=68, phased=false, phasedAutodetect=false]"
+                ],
+                [
+                    "HG002_ONT_A_sniffles_svs.vcf.gz",
                     "VcfFile [chromosomes=[chrX, chr16, chr20], sampleCount=1, variantCount=67, phased=false, phasedAutodetect=false]"
                 ],
                 [
@@ -770,7 +781,11 @@
                     "VcfFile [chromosomes=[chrX, chr16, chr20], sampleCount=1, variantCount=31, phased=false, phasedAutodetect=false]"
                 ],
                 [
-                    "HG002_ONT_B_svs.vcf.gz",
+                    "HG002_ONT_B_severus_svs.vcf.gz",
+                    "VcfFile [chromosomes=[chrX, chr16], sampleCount=1, variantCount=68, phased=false, phasedAutodetect=false]"
+                ],
+                [
+                    "HG002_ONT_B_sniffles_svs.vcf.gz",
                     "VcfFile [chromosomes=[chrX, chr16, chr20], sampleCount=1, variantCount=67, phased=false, phasedAutodetect=false]"
                 ]
             ],
@@ -797,6 +812,6 @@
             "nf-test": "0.9.0",
             "nextflow": "24.10.3"
         },
-        "timestamp": "2025-01-20T13:51:52.759347222"
+        "timestamp": "2025-01-22T16:55:53.007614336"
     }
 }

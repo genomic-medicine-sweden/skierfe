@@ -5,33 +5,7 @@ nextflow_workflow {
     config "./nextflow.config"
     workflow "CALL_SVS"
 
-    setup {
-            run("GUNZIP") {
-                script "../../../../modules/nf-core/gunzip/main.nf"
-                process {
-                    """
-                    input[0] = [
-                        [ id:'test' ],
-                        file(params.pipelines_testdata_base_path + 'reference/hg38.test.fa.gz', checkIfExists: true)
-                    ]
-                    """
-                }
-
-            }
-
-            run("SAMTOOLS_FAIDX") {
-                script "../../../../modules/nf-core/samtools/faidx/main.nf"
-                process {
-                    """
-                    input[0] = GUNZIP.out.gunzip
-                    input[1] = [[],[]]
-                    """
-                }
-
-            }
-    }
-
-    test("1 sample - [bam, bai], fasta, fai, [], [] - sniffles") {
+    test("1 sample - [bam, bai], 'sniffles', []") {
 
         when {
             workflow {
@@ -41,11 +15,8 @@ nextflow_workflow {
                     file(params.pipelines_testdata_base_path + 'testdata/HG002_PacBio_Revio.bam', checkIfExists: true),
                     file(params.pipelines_testdata_base_path + 'testdata/HG002_PacBio_Revio.bam.bai', checkIfExists: true)
                 ])
-                input[1] = GUNZIP.out.gunzip
-                input[2] = SAMTOOLS_FAIDX.out.fai
-                input[3] = "sniffles"
-                input[4] = [[],[]]
-                input[5] = [[],[]]
+                input[1] = "sniffles"
+                input[2] = [[],[]]
                 """
             }
         }
@@ -65,7 +36,7 @@ nextflow_workflow {
 
     }
 
-    test("1 sample - [bam, bai], fasta, fai, bed, [] - sniffles") {
+    test("1 sample - [bam, bai], 'sniffles', bed") {
 
         when {
             workflow {
@@ -75,14 +46,11 @@ nextflow_workflow {
                     file(params.pipelines_testdata_base_path + 'testdata/HG002_PacBio_Revio.bam', checkIfExists: true),
                     file(params.pipelines_testdata_base_path + 'testdata/HG002_PacBio_Revio.bam.bai', checkIfExists: true)
                 ])
-                input[1] = GUNZIP.out.gunzip
-                input[2] = SAMTOOLS_FAIDX.out.fai
-                input[3] = "sniffles"
-                input[4] = [
+                input[1] = "sniffles"
+                input[2] = [
                     [ id:'trf' ],
                     file('https://github.com/fritzsedlazeck/Sniffles/raw/master/annotations/human_GRCh38_no_alt_analysis_set.trf.bed', checkIfExists: true)
                 ]
-                input[5] = [[],[]]
                 """
             }
         }
@@ -104,7 +72,7 @@ nextflow_workflow {
 
     }
 
-    test("2 samples - [bam, bai], fasta, fai, [], [] - sniffles") {
+    test("2 samples - [bam, bai], 'sniffles', []") {
         tag "x"
         when {
             workflow {
@@ -121,11 +89,8 @@ nextflow_workflow {
                         file(params.pipelines_testdata_base_path + 'testdata/HG002_ONT.bam.bai', checkIfExists: true)
                     ]
                 )
-                input[1] = GUNZIP.out.gunzip
-                input[2] = SAMTOOLS_FAIDX.out.fai
-                input[3] = "sniffles"
-                input[4] = [[],[]]
-                input[5] = [[],[]]
+                input[1] = "sniffles"
+                input[2] = [[],[]]
                 """
             }
         }
@@ -151,7 +116,7 @@ nextflow_workflow {
 
     }
 
-    test("1 sample - [bam, bai], fasta, fai, [], bed - sniffles") {
+    test("1 sample - [bam, bai], 'severus', []") {
 
         when {
             workflow {
@@ -161,47 +126,8 @@ nextflow_workflow {
                     file(params.pipelines_testdata_base_path + 'testdata/HG002_PacBio_Revio.bam', checkIfExists: true),
                     file(params.pipelines_testdata_base_path + 'testdata/HG002_PacBio_Revio.bam.bai', checkIfExists: true)
                 ])
-                input[1] = GUNZIP.out.gunzip
-                input[2] = SAMTOOLS_FAIDX.out.fai
-                input[3] = "sniffles"
-                input[4] = [[],[]]
-            input[5] = Channel.of('chr20\t2650000\t2660000')
-                .collectFile(name: 'chr20.bed', newLine: true)
-                .map{ file -> [ [ id:'chr20'], file ] }
-                """
-            }
-        }
-
-        then {
-            assertAll(
-                { assert workflow.success },
-                { assert workflow.out.sample_tbi.get(0).get(1).endsWith("tbi") },
-                { assert workflow.out.family_tbi.get(0).get(1).endsWith("tbi") },
-                { assert snapshot(
-                    path(workflow.out.sample_vcf.get(0).get(1)).vcf.variantsMD5,
-                    path(workflow.out.family_vcf.get(0).get(1)).vcf.variantsMD5,
-                    workflow.out.versions,
-                ).match() }
-            )
-        }
-
-    }
-
-    test("1 sample - [bam, bai], fasta, fai, [], [] - severus") {
-
-        when {
-            workflow {
-                """
-                input[0] = Channel.of([
-                    [ id:'test', single_end:false, family_id: 'family' ], // meta map
-                    file(params.pipelines_testdata_base_path + 'testdata/HG002_PacBio_Revio.bam', checkIfExists: true),
-                    file(params.pipelines_testdata_base_path + 'testdata/HG002_PacBio_Revio.bam.bai', checkIfExists: true)
-                ])
-                input[1] = GUNZIP.out.gunzip
-                input[2] = SAMTOOLS_FAIDX.out.fai
-                input[3] = "severus"
-                input[4] = [[],[]]
-                input[5] = [[],[]]
+                input[1] = "severus"
+                input[2] = [[],[]]
                 """
             }
         }
@@ -223,7 +149,7 @@ nextflow_workflow {
 
     }
 
-    test("1 sample - [bam, bai], fasta, fai, bed, [] - severus") {
+    test("1 sample - [bam, bai], 'severus', bed") {
 
         when {
             workflow {
@@ -233,14 +159,11 @@ nextflow_workflow {
                     file(params.pipelines_testdata_base_path + 'testdata/HG002_PacBio_Revio.bam', checkIfExists: true),
                     file(params.pipelines_testdata_base_path + 'testdata/HG002_PacBio_Revio.bam.bai', checkIfExists: true)
                 ])
-                input[1] = GUNZIP.out.gunzip
-                input[2] = SAMTOOLS_FAIDX.out.fai
-                input[3] = "severus"
-                input[4] = [
+                input[1] = "severus"
+                input[2] = [
                     [ id:'trf' ],
                     file('https://github.com/fritzsedlazeck/Sniffles/raw/master/annotations/human_GRCh38_no_alt_analysis_set.trf.bed', checkIfExists: true)
                 ]
-                input[5] = [[],[]]
                 """
             }
         }
@@ -262,45 +185,7 @@ nextflow_workflow {
 
     }
 
-    test("1 sample - [bam, bai], fasta, fai, [], bed - severus") {
-
-        when {
-            workflow {
-                """
-                input[0] = Channel.of([
-                    [ id:'test', single_end:false, family_id: 'family' ], // meta map
-                    file(params.pipelines_testdata_base_path + 'testdata/HG002_PacBio_Revio.bam', checkIfExists: true),
-                    file(params.pipelines_testdata_base_path + 'testdata/HG002_PacBio_Revio.bam.bai', checkIfExists: true)
-                ])
-                input[1] = GUNZIP.out.gunzip
-                input[2] = SAMTOOLS_FAIDX.out.fai
-                input[3] = "severus"
-                input[4] = [[],[]]
-                input[5] = Channel.of('chr20\t2650000\t2660000')
-                    .collectFile(name: 'chr20.bed', newLine: true)
-                    .map{ file -> [ [ id:'chr20'], file ] }
-                """
-            }
-        }
-
-        then {
-            assertAll(
-                { assert workflow.success },
-                { assert workflow.out.sample_tbi.get(0).get(1).endsWith("tbi") },
-                { assert workflow.out.family_tbi.get(0).get(1).endsWith("tbi") },
-                { assert snapshot(
-                    path(workflow.out.sample_vcf.get(0).get(1)).vcf.summary,
-                    path(workflow.out.sample_vcf.get(0).get(1)).vcf.variantsMD5,
-                    path(workflow.out.family_vcf.get(0).get(1)).vcf.summary,
-                    path(workflow.out.family_vcf.get(0).get(1)).vcf.variantsMD5,
-                    workflow.out.versions,
-                ).match() }
-            )
-        }
-
-    }
-
-    test("2 samples - [bam, bai], fasta, fai, [], [] - severus") {
+    test("2 samples - [bam, bai], 'severus', []") {
 
         when {
             workflow {
@@ -317,11 +202,8 @@ nextflow_workflow {
                         file(params.pipelines_testdata_base_path + 'testdata/HG002_ONT.bam.bai', checkIfExists: true)
                     ]
                 )
-                input[1] = GUNZIP.out.gunzip
-                input[2] = SAMTOOLS_FAIDX.out.fai
-                input[3] = "severus"
-                input[4] = [[],[]]
-                input[5] = [[],[]]
+                input[1] = "severus"
+                input[2] = [[],[]]
                 """
             }
         }
@@ -346,7 +228,7 @@ nextflow_workflow {
 
     }
 
-    test("1 sample - [bam, bai], fasta, fai, [], [] - sniffles -stub") {
+    test("1 sample - [bam, bai], 'sniffles', [] -stub") {
 
         options "-stub"
 
@@ -358,11 +240,8 @@ nextflow_workflow {
                     file(params.pipelines_testdata_base_path + 'testdata/HG002_PacBio_Revio.bam', checkIfExists: true),
                     file(params.pipelines_testdata_base_path + 'testdata/HG002_PacBio_Revio.bam.bai', checkIfExists: true)
                 ])
-                input[1] = GUNZIP.out.gunzip
-                input[2] = SAMTOOLS_FAIDX.out.fai
-                input[3] = "sniffles"
-                input[4] = [[],[]]
-                input[5] = [[],[]]
+                input[1] = "sniffles"
+                input[2] = [[],[]]
                 """
             }
         }
@@ -376,7 +255,7 @@ nextflow_workflow {
 
     }
 
-    test("1 sample - [bam, bai], fasta, fai, bed, [] - sniffles -stub") {
+    test("1 sample - [bam, bai], 'sniffles', bed -stub") {
 
         options "-stub"
 
@@ -388,14 +267,11 @@ nextflow_workflow {
                     file(params.pipelines_testdata_base_path + 'testdata/HG002_PacBio_Revio.bam', checkIfExists: true),
                     file(params.pipelines_testdata_base_path + 'testdata/HG002_PacBio_Revio.bam.bai', checkIfExists: true)
                 ])
-                input[1] = GUNZIP.out.gunzip
-                input[2] = SAMTOOLS_FAIDX.out.fai
-                input[3] = "sniffles"
-                input[4] = [
+                input[1] = "sniffles"
+                input[2] = [
                     [ id:'trf' ],
                     file('https://github.com/fritzsedlazeck/Sniffles/raw/master/annotations/human_GRCh38_no_alt_analysis_set.trf.bed', checkIfExists: true)
                 ]
-                input[5] = [[],[]]
                 """
             }
         }
@@ -409,39 +285,7 @@ nextflow_workflow {
 
     }
 
-    test("1 sample - [bam, bai], fasta, fai, [], bed - sniffles -stub") {
-
-        options "-stub"
-
-        when {
-            workflow {
-                """
-                input[0] = Channel.of([
-                    [ id:'test', single_end:false, family_id: 'family' ], // meta map
-                    file(params.pipelines_testdata_base_path + 'testdata/HG002_PacBio_Revio.bam', checkIfExists: true),
-                    file(params.pipelines_testdata_base_path + 'testdata/HG002_PacBio_Revio.bam.bai', checkIfExists: true)
-                ])
-                input[1] = GUNZIP.out.gunzip
-                input[2] = SAMTOOLS_FAIDX.out.fai
-                input[3] = "sniffles"
-                input[4] = [[],[]]
-                input[5] = Channel.of('chr20\t2650000\t2660000')
-                    .collectFile(name: 'chr20.bed', newLine: true)
-                    .map{ file -> [ [ id:'chr20'], file ] }
-                """
-            }
-        }
-
-        then {
-            assertAll(
-                { assert workflow.success },
-                { assert snapshot(workflow.out).match() }
-            )
-        }
-
-    }
-
-    test("2 samples - [bam, bai], fasta, fai, [], [] - sniffles -stub") {
+    test("2 samples - [bam, bai], 'sniffles', [] -stub") {
 
         options "-stub"
 
@@ -460,11 +304,8 @@ nextflow_workflow {
                         file(params.pipelines_testdata_base_path + 'testdata/HG002_ONT.bam.bai', checkIfExists: true)
                     ]
                 )
-                input[1] = GUNZIP.out.gunzip
-                input[2] = SAMTOOLS_FAIDX.out.fai
-                input[3] = "sniffles"
-                input[4] = [[],[]]
-                input[5] = [[],[]]
+                input[1] = "sniffles"
+                input[2] = [[],[]]
                 """
             }
         }
@@ -484,7 +325,7 @@ nextflow_workflow {
 
     }
 
-    test("1 sample - [bam, bai], fasta, fai, [], [] - severus -stub") {
+    test("1 sample - [bam, bai], 'severus', [] -stub") {
 
         options "-stub"
 
@@ -496,11 +337,8 @@ nextflow_workflow {
                     file(params.pipelines_testdata_base_path + 'testdata/HG002_PacBio_Revio.bam', checkIfExists: true),
                     file(params.pipelines_testdata_base_path + 'testdata/HG002_PacBio_Revio.bam.bai', checkIfExists: true)
                 ])
-                input[1] = GUNZIP.out.gunzip
-                input[2] = SAMTOOLS_FAIDX.out.fai
-                input[3] = "severus"
-                input[4] = [[],[]]
-                input[5] = [[],[]]
+                input[1] = "severus"
+                input[2] = [[],[]]
                 """
             }
         }
@@ -514,7 +352,7 @@ nextflow_workflow {
 
     }
 
-    test("1 sample - [bam, bai], fasta, fai, [], bed - severus -stub") {
+    test("1 sample - [bam, bai], 'severus', bed -stub") {
 
         options "-stub"
 
@@ -526,46 +364,11 @@ nextflow_workflow {
                     file(params.pipelines_testdata_base_path + 'testdata/HG002_PacBio_Revio.bam', checkIfExists: true),
                     file(params.pipelines_testdata_base_path + 'testdata/HG002_PacBio_Revio.bam.bai', checkIfExists: true)
                 ])
-                input[1] = GUNZIP.out.gunzip
-                input[2] = SAMTOOLS_FAIDX.out.fai
-                input[3] = "severus"
-                input[4] = [[],[]]
-                input[5] = Channel.of('chr20\t2650000\t2660000')
-                    .collectFile(name: 'chr20.bed', newLine: true)
-                    .map{ file -> [ [ id:'chr20'], file ] }
-                """
-            }
-        }
-
-        then {
-            assertAll(
-                { assert workflow.success },
-                { assert snapshot(workflow.out).match() }
-            )
-        }
-
-    }
-
-    test("1 sample - [bam, bai], fasta, fai, bed, [] - severus -stub") {
-
-        options "-stub"
-
-        when {
-            workflow {
-                """
-                input[0] = Channel.of([
-                    [ id:'test', single_end:false, family_id: 'family' ], // meta map
-                    file(params.pipelines_testdata_base_path + 'testdata/HG002_PacBio_Revio.bam', checkIfExists: true),
-                    file(params.pipelines_testdata_base_path + 'testdata/HG002_PacBio_Revio.bam.bai', checkIfExists: true)
-                ])
-                input[1] = GUNZIP.out.gunzip
-                input[2] = SAMTOOLS_FAIDX.out.fai
-                input[3] = "severus"
-                input[4] = [
+                input[1] = "severus"
+                input[2] = [
                     [ id:'trf' ],
                     file('https://github.com/fritzsedlazeck/Sniffles/raw/master/annotations/human_GRCh38_no_alt_analysis_set.trf.bed', checkIfExists: true)
                 ]
-                input[5] = [[],[]]
                 """
             }
         }
@@ -579,7 +382,7 @@ nextflow_workflow {
 
     }
 
-    test("2 samples - [bam, bai], fasta, fai, [], [] - severus -stub") {
+    test("2 samples - [bam, bai], 'severus', [] -stub") {
 
         options "-stub"
 
@@ -598,11 +401,8 @@ nextflow_workflow {
                         file(params.pipelines_testdata_base_path + 'testdata/HG002_ONT.bam.bai', checkIfExists: true)
                     ]
                 )
-                input[1] = GUNZIP.out.gunzip
-                input[2] = SAMTOOLS_FAIDX.out.fai
-                input[3] = "severus"
-                input[4] = [[],[]]
-                input[5] = [[],[]]
+                input[1] = "severus"
+                input[2] = [[],[]]
                 """
             }
         }
