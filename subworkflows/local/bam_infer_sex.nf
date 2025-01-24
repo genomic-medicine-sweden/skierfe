@@ -24,8 +24,8 @@ workflow BAM_INFER_SEX {
     ch_versions = ch_versions.mix(SOMALIER_EXTRACT.out.versions)
 
     SOMALIER_EXTRACT.out.extract
-        .combine( ch_ped.map { meta, ped -> ped } )
-        .filter { meta, extract, ped -> meta.sex == 0 }
+        .combine( ch_ped.map { _meta, ped -> ped } )
+        .filter { meta, _extract, _ped -> meta.sex == 0 }
         .set { ch_relate_infer_in }
 
     // 1. Run somalier relate on one sample at a time to infer sex
@@ -33,7 +33,7 @@ workflow BAM_INFER_SEX {
     ch_versions = ch_versions.mix(RELATE_INFER.out.versions)
 
     RELATE_INFER.out.samples_tsv
-        .map { meta, tsv -> tsv }
+        .map { _meta, tsv -> tsv }
         .splitCsv(header: true, sep: '\t')
         .set { somalier_tsv }
 
@@ -48,7 +48,7 @@ workflow BAM_INFER_SEX {
 
     // Branch on samples with known/unknown sex
     ch_bam_bai
-        .branch { meta, bam, bai ->
+        .branch { meta, _bam, _bai ->
             unknown_sex: meta.sex == 0
             known_sex: meta.sex != 0
         }
@@ -58,8 +58,8 @@ workflow BAM_INFER_SEX {
     ch_samples.unknown_sex
         .map { meta, bam, bai -> [ meta.id, meta, bam, bai ] }
         .join( ch_somalier_sex )
-        .map { id, meta, bam, bai, somalier ->
-            updated_sex = (meta.sex == 0 ? somalier.sex.toInteger() : meta.sex)
+        .map { _id, meta, bam, bai, somalier ->
+            def updated_sex = (meta.sex == 0 ? somalier.sex.toInteger() : meta.sex)
             [ meta + [sex: updated_sex], bam, bai ]
         }
         .set { ch_updated_sex }
@@ -78,11 +78,11 @@ workflow BAM_INFER_SEX {
     ch_versions = ch_versions.mix(RELATE_RELATE.out.versions)
 
     emit:
-    bam              = ch_updated_sex.map { meta, bam, bai -> [ meta, bam ] } // channel: [ val(meta), path(bam) ]
-    bai              = ch_updated_sex.map { meta, bam, bai -> [ meta, bai ] } // channel: [ val(meta), path(bai) ]
-    bam_bai          = ch_updated_sex                                         // channel: [ val(meta), path(bam), path(bai) ]
-    somalier_samples = RELATE_RELATE.out.samples_tsv                          // channel: [ val(meta), path(samples_tsv) ]
-    somalier_pairs   = RELATE_RELATE.out.pairs_tsv                            // channel: [ val(meta), path(pairs_tsv) ]
-    versions = ch_versions                                                    // channel: [ versions.yml ]
+    bam              = ch_updated_sex.map { meta, bam, _bai -> [ meta, bam ] } // channel: [ val(meta), path(bam) ]
+    bai              = ch_updated_sex.map { meta, _bam, bai -> [ meta, bai ] } // channel: [ val(meta), path(bai) ]
+    bam_bai          = ch_updated_sex                                          // channel: [ val(meta), path(bam), path(bai) ]
+    somalier_samples = RELATE_RELATE.out.samples_tsv                           // channel: [ val(meta), path(samples_tsv) ]
+    somalier_pairs   = RELATE_RELATE.out.pairs_tsv                             // channel: [ val(meta), path(pairs_tsv) ]
+    versions = ch_versions                                                     // channel: [ versions.yml ]
 }
 

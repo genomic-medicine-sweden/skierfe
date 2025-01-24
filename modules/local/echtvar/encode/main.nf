@@ -35,7 +35,7 @@ process ECHTVAR_ENCODE {
     ]
     JSON
 
-    echtvar encode ${prefix}.zip ${prefix}.json ${bcf}
+    echtvar encode ${args} ${prefix}.zip ${prefix}.json ${bcf}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

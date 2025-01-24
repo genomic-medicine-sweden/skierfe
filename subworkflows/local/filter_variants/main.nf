@@ -16,7 +16,7 @@ workflow FILTER_VARIANTS {
 
         ENSEMBLVEP_FILTERVEP (
             ch_vcf,
-            ch_hgnc_ids.map { meta, file -> file }
+            ch_hgnc_ids.map { _meta, file -> file }
         )
         ch_versions = ch_versions.mix(ENSEMBLVEP_FILTERVEP.out.versions)
 

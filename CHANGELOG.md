@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Fixed`
 
+- [#](https://github.com/genomic-medicine-sweden/nallo/pull/) - Fixed Nexftlow language server issues
+
 ### Parameters
 
 | Old parameter | New parameter      |

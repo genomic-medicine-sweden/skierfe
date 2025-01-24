@@ -36,13 +36,13 @@ workflow SHORT_VARIANT_CALLING {
     // Then after grouping remove num_intervals since to match the meta of other workflows
     DEEPVARIANT_RUNDEEPVARIANT.out.vcf
         .map { meta, vcf ->
-            new_meta = meta - meta.subMap('region')
+            def new_meta = meta - meta.subMap('region')
             [ groupKey(new_meta, new_meta.num_intervals ), vcf ]
         }
         .groupTuple()
         .join( DEEPVARIANT_RUNDEEPVARIANT.out.vcf_tbi
             .map{ meta, tbi ->
-                new_meta = meta - meta.subMap('region')
+                def new_meta = meta - meta.subMap('region')
                 [ groupKey(new_meta, new_meta.num_intervals ), tbi ]
             }
             .groupTuple()

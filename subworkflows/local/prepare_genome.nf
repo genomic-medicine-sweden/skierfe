@@ -15,8 +15,6 @@ workflow PREPARE_GENOME {
     ch_versions = Channel.empty()
     ch_fasta = Channel.empty()
 
-    fasta_file = fasta_in.map{meta, file -> file}
-
     // Will not catch cases where fasta is bgzipped
     if ( gunzip_fasta ) {
         GUNZIP_FASTA ( fasta_in )

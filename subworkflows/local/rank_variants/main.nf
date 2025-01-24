@@ -28,7 +28,7 @@ workflow RANK_VARIANTS {
 
     GENMOD_MODELS (
         genmod_models_in,
-        ch_genmod_reduced_penetrance.map { meta, file -> file }
+        ch_genmod_reduced_penetrance.map { _meta, file -> file }
     )
     ch_versions = ch_versions.mix(GENMOD_MODELS.out.versions)
 
@@ -38,7 +38,7 @@ workflow RANK_VARIANTS {
 
     GENMOD_SCORE (
         genmod_score_in,
-        ch_score_config.map { meta, file -> file }
+        ch_score_config.map { _meta, file -> file }
     )
     ch_versions = ch_versions.mix(GENMOD_SCORE.out.versions)
 

@@ -13,10 +13,8 @@ workflow CALL_SVS {
     take:
     ch_bam_bai        // channel [mandatory]: [ val(meta), path(bam), path(bai) ]
     ch_fasta          // channel [mandatory]: [ val(meta), path(fasta) ]
-    ch_fai            // channel [mandatory]: [ val(meta), path(fai) ]
     sv_caller         //     val [mandatory]: Which caller to use
     ch_tandem_repeats // channel  [optional]: [ val(meta), path(bed) ]
-    ch_bed            // channel  [optional]: [ val(meta), path(bed) ]
 
     main:
     ch_versions     = Channel.empty()
@@ -96,10 +94,10 @@ workflow CALL_SVS {
     ch_versions = ch_versions.mix(TABIX_SVDB_MERGE.out.versions)
 
     emit:
-    sample_vcf     = BCFTOOLS_REHEADER.out.vcf   // channel: [ val(meta), path(vcf) ]
-    sample_tbi     = BCFTOOLS_REHEADER.out.index // channel: [ val(meta), path(tbi) ]
-    family_vcf  = SVDB_MERGE.out.vcf          // channel: [ val(meta), path(vcf) ]
-    family_tbi  = TABIX_SVDB_MERGE.out.tbi    // channel: [ val(meta), path(tbi) ]
-    versions            = ch_versions                 // channel: [ path(versions.yml) ]
+    sample_vcf = BCFTOOLS_REHEADER.out.vcf   // channel: [ val(meta), path(vcf) ]
+    sample_tbi = BCFTOOLS_REHEADER.out.index // channel: [ val(meta), path(tbi) ]
+    family_vcf = SVDB_MERGE.out.vcf          // channel: [ val(meta), path(vcf) ]
+    family_tbi = TABIX_SVDB_MERGE.out.tbi    // channel: [ val(meta), path(tbi) ]
+    versions   = ch_versions                 // channel: [ path(versions.yml) ]
 }
 

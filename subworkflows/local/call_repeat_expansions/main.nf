@@ -15,7 +15,6 @@ workflow CALL_REPEAT_EXPANSIONS {
     ch_trgt_bed // channel: [mandatory] [ val(meta), path(bed) ]
 
     main:
-    ch_repeat_calls_vcf = Channel.empty()
     ch_versions         = Channel.empty()
 
     ch_bam_bai

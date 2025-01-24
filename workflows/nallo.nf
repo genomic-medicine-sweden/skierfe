@@ -133,9 +133,8 @@ workflow NALLO {
         ch_versions = ch_versions.mix(PREPARE_GENOME.out.versions)
 
         // Gather indices
-        fasta = PREPARE_GENOME.out.fasta
-        fai   = PREPARE_GENOME.out.fai
-        mmi   = PREPARE_GENOME.out.mmi
+        ch_fasta = PREPARE_GENOME.out.fasta
+        ch_fai   = PREPARE_GENOME.out.fai
 
         // Split input files for alignment
         if (params.alignment_processes > 1) {
@@ -149,7 +148,7 @@ workflow NALLO {
         //
         MINIMAP2_ALIGN (
             params.alignment_processes > 1 ? SPLITUBAM.out.bam.transpose() : CONVERT_INPUT_FILES.out.bam,
-            mmi,
+            PREPARE_GENOME.out.mmi,
             true,
             'bai',
             false,
@@ -174,7 +173,7 @@ workflow NALLO {
 
         // Merge files if we have multiple files per sample
         SAMTOOLS_MERGE (
-            bam_to_merge.multiple.map { meta, bam, bai -> [ meta, bam ] },
+            bam_to_merge.multiple.map { meta, bam, _bai -> [ meta, bam ] },
             [[],[]],
             [[],[]]
         )
@@ -191,7 +190,7 @@ workflow NALLO {
         // Create PED from samplesheet
         //
         ch_input
-            .map { meta, files -> [ [ id: meta.project ], meta ] }
+            .map { meta, _files -> [ [ id: meta.project ], meta ] }
             .groupTuple()
             .set { ch_samplesheet_ped_in }
 
@@ -207,8 +206,8 @@ workflow NALLO {
         //
         BAM_INFER_SEX (
             bam_infer_sex_in,
-            fasta,
-            fai,
+            ch_fasta,
+            ch_fai,
             ch_somalier_sites,
             ch_samplesheet_pedfile
         )
@@ -217,9 +216,8 @@ workflow NALLO {
         ch_multiqc_files = ch_multiqc_files.mix(BAM_INFER_SEX.out.somalier_pairs.map{it[1]}.collect().ifEmpty([]))
 
         // Set files with updated meta for subsequent processes
-        bam     = BAM_INFER_SEX.out.bam
-        bai     = BAM_INFER_SEX.out.bai
-        bam_bai = BAM_INFER_SEX.out.bam_bai
+        ch_bam     = BAM_INFER_SEX.out.bam
+        ch_bam_bai = BAM_INFER_SEX.out.bam_bai
 
     }
 
@@ -229,8 +227,8 @@ workflow NALLO {
     if (!params.skip_qc) {
 
         QC_ALIGNED_READS (
-            bam_bai,
-            fasta,
+            ch_bam_bai,
+            ch_fasta,
             ch_input_bed
         )
         ch_versions = ch_versions.mix(QC_ALIGNED_READS.out.versions)
@@ -246,8 +244,8 @@ workflow NALLO {
     //
     if(!params.skip_call_paralogs) {
         CALL_PARALOGS (
-            bam_bai,
-            fasta
+            ch_bam_bai,
+            ch_fasta
         )
         ch_versions = ch_versions.mix(CALL_PARALOGS.out.versions)
     }
@@ -264,19 +262,19 @@ workflow NALLO {
         // Update assembly variant calling meta with sex from somalier
         ASSEMBLY.out.assembled_haplotypes
             .map { meta, hap1, hap2 -> [ meta.id, [ hap1, hap2 ] ] }
-            .set { haplotypes }
+            .set { ch_haplotypes }
 
-        bam
-            .map { meta, bam -> [ meta.id, meta ] }
-            .join( haplotypes )
-            .map { id, meta, haplotypes -> [ meta, haplotypes[0], haplotypes[1] ] }
+        ch_bam
+            .map { meta, _bam -> [ meta.id, meta ] }
+            .join( ch_haplotypes )
+            .map { _id, meta, haplotypes -> [ meta, haplotypes[0], haplotypes[1] ] }
             .set { ch_assembly_variant_calling_in }
 
         // Run dipcall
         ASSEMBLY_VARIANT_CALLING (
             ch_assembly_variant_calling_in,
-            fasta,
-            fai,
+            ch_fasta,
+            ch_fai,
             ch_par
         )
         ch_versions = ch_versions.mix(ASSEMBLY_VARIANT_CALLING.out.versions)
@@ -291,7 +289,7 @@ workflow NALLO {
         // Make BED intervals, to be used for parallel SNV calling
         //
         SCATTER_GENOME (
-            fai,
+            ch_fai,
             ch_input_bed,             // BED file to scatter
             !params.target_regions,   // Make bed from fai
             !params.skip_snv_calling,
@@ -300,7 +298,7 @@ workflow NALLO {
         ch_versions = ch_versions.mix(SCATTER_GENOME.out.versions)
 
         // Combine to create a bam_bai - interval pair for each sample
-        bam_bai
+        ch_bam_bai
             .combine( SCATTER_GENOME.out.bed_intervals )
             .map { meta, bam, bai, bed, intervals ->
                 [ meta + [ num_intervals: intervals ], bam, bai, bed ]
@@ -310,7 +308,13 @@ workflow NALLO {
         // This subworkflow calls SNVs with DeepVariant and outputs:
         // 1. A merged and normalised VCF, containing one sample with all regions, to be used in downstream subworkflows requiring SNVs.
         // 2. A merged and normalised VCF, containing one region with all samples, to be used in annotation and ranking.
-        SHORT_VARIANT_CALLING( ch_snv_calling_in, fasta, fai, SCATTER_GENOME.out.bed, ch_par )
+        SHORT_VARIANT_CALLING (
+            ch_snv_calling_in,
+            ch_fasta,
+            ch_fai,
+            SCATTER_GENOME.out.bed,
+            ch_par
+        )
         ch_versions = ch_versions.mix(SHORT_VARIANT_CALLING.out.versions)
 
         SHORT_VARIANT_CALLING.out.family_bcf
@@ -326,10 +330,10 @@ workflow NALLO {
         // Annotates family VCFs per variant call region
         SNV_ANNOTATION(
             SHORT_VARIANT_CALLING.out.family_bcf,
-            ch_databases.map { meta, databases -> databases }.collect(),
-            fasta,
-            fai.map { name, fai -> [ [ id: name ], fai ] },
-            PREPARE_GENOME.out.vep_resources.map { meta, cache -> cache },
+            ch_databases.map { _meta, databases -> databases }.collect(),
+            ch_fasta,
+            ch_fai.map { name, fai -> [ [ id: name ], fai ] },
+            PREPARE_GENOME.out.vep_resources.map { _meta, cache -> cache },
             params.vep_cache_version,
             ch_vep_plugin_files.collect(),
             (params.cadd_resources && params.cadd_prescored_indels), // should indels be annotated with CADD
@@ -359,8 +363,8 @@ workflow NALLO {
 
         // Create PED with updated sex - per family
         SOMALIER_PED_FAMILY (
-            bam
-                .map { meta, files -> [ [ id: meta.family_id ], meta ] }
+            ch_bam
+                .map { meta, _files -> [ [ id: meta.family_id ], meta ] }
                 .groupTuple()
         )
         ch_versions = ch_versions.mix(SOMALIER_PED_FAMILY.out.versions)
@@ -369,10 +373,10 @@ workflow NALLO {
         // Since we don't always have matching number of ped files and call regions
         // we need to combine and filter instead of join
         ANN_CSQ_PLI_SNV.out.vcf
-            .map { meta, vcf -> [ [ id:meta.family_id ], meta ] }
+            .map { meta, _vcf -> [ [ id:meta.family_id ], meta ] }
             .combine ( SOMALIER_PED_FAMILY.out.ped )
-            .filter { family_id_snv, meta, family_id_ped, ped -> family_id_snv == family_id_ped }
-            .map { family_id_snv, meta, family_id_ped, ped -> [ meta, ped ] }
+            .filter { family_id_snv, _meta, family_id_ped, _ped -> family_id_snv == family_id_ped }
+            .map { _family_id_snv, meta, _family_id_ped, ped -> [ meta, ped ] }
             .set { snv_ranking_ped_file }
 
         // Only run if we have affected individuals
@@ -445,12 +449,10 @@ workflow NALLO {
 
         // If both CNV-calling and SV annotation is off, merged variants are output from here
         CALL_SVS (
-            bam_bai,
-            fasta,
-            fai,
+            ch_bam_bai,
+            ch_fasta,
             params.sv_caller,
-            ch_tandem_repeats,
-            ch_input_bed
+            ch_tandem_repeats
         )
         ch_versions = ch_versions.mix(CALL_SVS.out.versions)
 
@@ -464,8 +466,8 @@ workflow NALLO {
     if(!params.skip_cnv_calling) {
 
         CALL_CNVS (
-            bam_bai.join(SHORT_VARIANT_CALLING.out.snp_calls_vcf),
-            fasta,
+            ch_bam_bai.join(SHORT_VARIANT_CALLING.out.snp_calls_vcf),
+            ch_fasta,
             ch_expected_xy_bed,
             ch_expected_xx_bed,
             ch_exclude_bed
@@ -513,9 +515,9 @@ workflow NALLO {
         // If annotation is on, then merged variants are output from here
         ANNOTATE_SVS (
             annotate_svs_in,
-            fasta,
+            ch_fasta,
             ch_svdb_sv_databases,
-            PREPARE_GENOME.out.vep_resources.map { meta, cache -> cache },
+            PREPARE_GENOME.out.vep_resources.map { _meta, cache -> cache },
             params.vep_cache_version,
             ch_vep_plugin_files.collect()
         )
@@ -568,9 +570,9 @@ workflow NALLO {
         PHASING (
             SHORT_VARIANT_CALLING.out.snp_calls_vcf,
             SHORT_VARIANT_CALLING.out.snp_calls_tbi,
-            bam_bai,
-            fasta,
-            fai
+            ch_bam_bai,
+            ch_fasta,
+            ch_fai
         )
         ch_versions = ch_versions.mix(PHASING.out.versions)
 
@@ -583,9 +585,8 @@ workflow NALLO {
     //
     if(!params.skip_methylation_pileups) {
         METHYLATION (
-            !params.skip_phasing ? PHASING.out.haplotagged_bam_bai : bam_bai,
-            fasta,
-            fai,
+            !params.skip_phasing ? PHASING.out.haplotagged_bam_bai : ch_bam_bai,
+            ch_fasta,
             ch_input_bed,
         )
         ch_versions = ch_versions.mix(METHYLATION.out.versions)
@@ -596,7 +597,12 @@ workflow NALLO {
     //
     if(!params.skip_repeat_calling) {
 
-        CALL_REPEAT_EXPANSIONS ( PHASING.out.haplotagged_bam_bai, fasta, fai, ch_trgt_bed )
+        CALL_REPEAT_EXPANSIONS (
+            PHASING.out.haplotagged_bam_bai,
+            ch_fasta,
+            ch_fai,
+            ch_trgt_bed
+        )
         ch_versions = ch_versions.mix(CALL_REPEAT_EXPANSIONS.out.versions)
     }
 

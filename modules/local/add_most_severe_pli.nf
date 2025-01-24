@@ -18,7 +18,6 @@ process ADD_MOST_SEVERE_PLI {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     if ("$vcf" == "${prefix}.vcf" ) error "Input and output names are the same, set prefix in module configuration to disambiguate!"
 

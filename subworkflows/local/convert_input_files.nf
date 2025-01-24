@@ -12,7 +12,7 @@ workflow CONVERT_INPUT_FILES {
     ch_versions = Channel.empty()
 
     ch_sample
-        .branch { meta, reads ->
+        .branch { _meta, reads ->
             fastq: reads.extension == 'gz'
             bam: reads.extension == 'bam'
         }

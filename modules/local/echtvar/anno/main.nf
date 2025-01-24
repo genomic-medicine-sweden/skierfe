@@ -25,7 +25,7 @@ process ECHTVAR_ANNO {
         modifiedList.add(element)
     }
     """
-    echtvar anno ${modifiedList.join(" ")} ${vcf} ${prefix}.bcf.gz
+    echtvar anno ${args} ${modifiedList.join(" ")} ${vcf} ${prefix}.bcf.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

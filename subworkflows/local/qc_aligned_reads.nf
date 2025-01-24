@@ -12,7 +12,7 @@ workflow QC_ALIGNED_READS {
     main:
     ch_versions = Channel.empty()
 
-    FASTQC ( ch_bam_bai.map { meta, bam, bai -> [ meta, bam ] } )
+    FASTQC ( ch_bam_bai.map { meta, bam, _bai -> [ meta, bam ] } )
     ch_versions = ch_versions.mix(FASTQC.out.versions)
 
     CRAMINO (ch_bam_bai)

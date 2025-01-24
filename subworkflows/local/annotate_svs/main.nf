@@ -16,7 +16,7 @@ workflow ANNOTATE_SVS {
     ch_versions = Channel.empty()
 
     ch_sv_dbs
-        .map { meta, csv -> csv }
+        .map { _meta, csv -> csv }
         .splitCsv ( header:true )
         .multiMap { row ->
             vcf_dbs:  row.filename
