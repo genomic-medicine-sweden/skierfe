@@ -22,8 +22,8 @@
             "@id": "./",
             "@type": "Dataset",
             "creativeWorkStatus": "InProgress",
-            "datePublished": "2025-01-16T12:58:29+00:00",
-            "description": "# genomic-medicine-sweden/nallo\n\n[![GitHub Actions CI Status](https://github.com/genomic-medicine-sweden/nallo/actions/workflows/ci.yml/badge.svg)](https://github.com/genomic-medicine-sweden/nallo/actions/workflows/ci.yml)\n[![GitHub Actions Linting Status](https://github.com/genomic-medicine-sweden/nallo/actions/workflows/linting.yml/badge.svg)](https://github.com/genomic-medicine-sweden/nallo/actions/workflows/linting.yml)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)\n[![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)\n\n[![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A524.04.2-23aa62.svg)](https://www.nextflow.io/)\n[![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)\n[![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)\n[![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)\n[![Launch on Seqera Platform](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Seqera%20Platform-%234256e7)](https://cloud.seqera.io/launch?pipeline=https://github.com/genomic-medicine-sweden/nallo)\n\n## Introduction\n\n**genomic-medicine-sweden/nallo** is a bioinformatics analysis pipeline for long-reads from both PacBio and (targeted) ONT-data, focused on rare-disease.\nHeavily influenced by best-practice pipelines such as [nf-core/sarek](https://nf-co.re/sarek), [nf-core/raredisease](https://nf-co.re/raredisease), [nf-core/nanoseq](https://github.com/nf-core/nanoseq), [PacBio Human WGS Workflow](https://github.com/PacificBiosciences/pb-human-wgs-workflow-snakemake), [epi2me-labs/wf-human-variation](https://github.com/epi2me-labs/wf-human-variation) and [brentp/rare-disease-wf](https://github.com/brentp/rare-disease-wf).\n\n<picture align=\"center\">\n    <img alt=\"genomic-medicine-sweden/nallo workflow\" src=\"docs/images/nallo_metromap.png\">\n  </picture>\n\n## Pipeline summary\n\n##### QC\n\n- Read QC with [FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/), [cramino](https://github.com/wdecoster/cramino) and [mosdepth](https://github.com/brentp/mosdepth)\n\n##### Alignment & assembly\n\n- Align reads to reference with [minimap2](https://github.com/lh3/minimap2)\n- Assemble haploid genomes with [hifiasm](https://github.com/chhylp123/hifiasm) (HiFi only)\n\n##### Variant calling\n\n- Call SNVs & joint genotyping with [deepvariant](https://github.com/google/deepvariant) and [GLNexus](https://github.com/dnanexus-rnd/GLnexus)\n- Call SVs with [Severus](https://github.com/KolmogorovLab/Severus) or [Sniffles2](https://github.com/fritzsedlazeck/Sniffles)\n- Call CNVs with [HiFiCNV](https://github.com/PacificBiosciences/HiFiCNV)\n- Call tandem repeats with [TRGT](https://github.com/PacificBiosciences/trgt/tree/main) (HiFi only)\n- Call paralogous genes with [Paraphase](https://github.com/PacificBiosciences/paraphase)\n- Call variants from assembly with [dipcall](https://github.com/lh3/dipcall) (HiFi only)\n\n##### Phasing and methylation\n\n- Phase and haplotag reads with [LongPhase](https://github.com/twolinin/longphase), [whatshap](https://github.com/whatshap/whatshap) or [HiPhase](https://github.com/PacificBiosciences/HiPhase)\n- Create methylation pileups with [modkit](https://github.com/nanoporetech/modkit)\n\n##### Annotation\n\n- Annotate SNVs and INDELs with databases of choice, e.g. [gnomAD](https://gnomad.broadinstitute.org), [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/), [CADD](https://cadd.gs.washington.edu) with [echtvar](https://github.com/brentp/echtvar) and [VEP](https://github.com/Ensembl/ensembl-vep)\n- Annotate repeat expansions with [stranger](https://github.com/Clinical-Genomics/stranger)\n- Annotate SVs with [SVDB](https://github.com/J35P312/SVDB) and [VEP](https://github.com/Ensembl/ensembl-vep)\n\n##### Ranking\n\n- Rank SNVs, INDELs, SVs and CNVs with [GENMOD](https://github.com/Clinical-Genomics/genmod)\n\n##### Filtering\n\n- Filter SNVs, INDELs, SVs and CNVs with [filter_vep](https://www.ensembl.org/vep) and [bcftools](https://samtools.github.io/bcftools/bcftools.html)\n\n## Usage\n\n> [!NOTE]\n> If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.\n\nPrepare a samplesheet with input data:\n\n`samplesheet.csv`\n\n```\nproject,sample,file,family_id,paternal_id,maternal_id,sex,phenotype\nNIST,HG002,/path/to/HG002.fastq.gz,FAM1,HG003,HG004,1,2\nNIST,HG005,/path/to/HG005.bam,FAM1,HG003,HG004,2,1\n```\n\nSupply a reference genome with `--fasta` and choose a matching `--preset` for your data (`revio`, `pacbio`, `ONT_R10`). Now, you can run the pipeline using:\n\n```bash\nnextflow run genomic-medicine-sweden/nallo \\\n    -profile <docker/singularity/.../institute> \\\n    --input samplesheet.csv \\\n    --preset <revio/pacbio/ONT_R10> \\\n    --fasta <reference.fasta> \\\n    --outdir <OUTDIR>\n```\n\nFor more details and further functionality, please refer to the [documentation](http://genomic-medicine-sweden.github.io/nallo/).\n\n## Credits\n\ngenomic-medicine-sweden/nallo was originally written by [Felix Lenner](https://github.com/fellen31).\n\nWe thank the following people for their extensive assistance in the development of this pipeline: [Anders Jemt](https://github.com/jemten), [Annick Renevey](https://github.com/rannick), [Daniel Schmitz](https://github.com/Schmytzi), [Lucía Peña-Pérez](https://github.com/Lucpen), [Peter Pruisscher](https://github.com/peterpru) & [Ramprasad Neethiraj](https://github.com/ramprasadn).\n\n## Contributions and Support\n\nIf you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).\n\n## Citations\n\nIf you use genomic-medicine-sweden/nallo for your analysis, please cite it using the following doi: [10.5281/zenodo.13748210](https://doi.org/10.5281/zenodo.13748210).\n\nThis pipeline uses code and infrastructure developed and maintained by the [nf-core](https://nf-co.re) community, reused here under the [MIT license](https://github.com/nf-core/tools/blob/main/LICENSE).\n\n> **The nf-core framework for community-curated bioinformatics pipelines.**\n>\n> Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.\n>\n> _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).\n\nAn extensive list of references for the tools used by the pipeline can be found in the [`docs/CITATIONS.md`](docs/CITATIONS.md) file.\n\n",
+            "datePublished": "2025-01-21T09:11:22+00:00",
+            "description": "[![GitHub Actions CI Status](https://github.com/genomic-medicine-sweden/nallo/actions/workflows/ci.yml/badge.svg)](https://github.com/genomic-medicine-sweden/nallo/actions/workflows/ci.yml)\n[![GitHub Actions Linting Status](https://github.com/genomic-medicine-sweden/nallo/actions/workflows/linting.yml/badge.svg)](https://github.com/genomic-medicine-sweden/nallo/actions/workflows/linting.yml)\n[![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)\n[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13748210.svg)](https://doi.org/10.5281/zenodo.13748210)\n[![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A524.04.2-23aa62.svg)](https://www.nextflow.io/)\n[![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)\n[![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)\n[![Launch on Seqera Platform](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Seqera%20Platform-%234256e7)](https://cloud.seqera.io/launch?pipeline=https://github.com/genomic-medicine-sweden/nallo)\n\n## Introduction\n\n**genomic-medicine-sweden/nallo** is a bioinformatics analysis pipeline for long-reads from both PacBio and (targeted) ONT-data, focused on rare-disease. Heavily influenced by best-practice pipelines such as [nf-core/sarek](https://nf-co.re/sarek), [nf-core/raredisease](https://nf-co.re/raredisease), [nf-core/nanoseq](https://github.com/nf-core/nanoseq), [PacBio Human WGS Workflow](https://github.com/PacificBiosciences/pb-human-wgs-workflow-snakemake), [epi2me-labs/wf-human-variation](https://github.com/epi2me-labs/wf-human-variation) and [brentp/rare-disease-wf](https://github.com/brentp/rare-disease-wf).\n\n<picture align=\"center\">\n    <img alt=\"genomic-medicine-sweden/nallo workflow\" src=\"docs/images/nallo_metromap.png\">\n  </picture>\n\n## Pipeline summary\n\n##### QC\n\n- Read QC with [FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/), [cramino](https://github.com/wdecoster/cramino) and [mosdepth](https://github.com/brentp/mosdepth)\n\n##### Alignment & assembly\n\n- Align reads to reference with [minimap2](https://github.com/lh3/minimap2)\n- Assemble genomes with [hifiasm](https://github.com/chhylp123/hifiasm)\n\n##### Variant calling\n\n- Call SNVs & joint genotyping with [deepvariant](https://github.com/google/deepvariant) and [GLNexus](https://github.com/dnanexus-rnd/GLnexus)\n- Call SVs with [Severus](https://github.com/KolmogorovLab/Severus) or [Sniffles](https://github.com/fritzsedlazeck/Sniffles)\n- Call CNVs with [HiFiCNV](https://github.com/PacificBiosciences/HiFiCNV)\n- Call tandem repeats with [TRGT](https://github.com/PacificBiosciences/trgt/tree/main) (HiFi only)\n- Call paralogous genes with [Paraphase](https://github.com/PacificBiosciences/paraphase)\n- Call variants from assembly with [dipcall](https://github.com/lh3/dipcall)\n\n##### Phasing and methylation\n\n- Phase and haplotag reads with [LongPhase](https://github.com/twolinin/longphase), [whatshap](https://github.com/whatshap/whatshap) or [HiPhase](https://github.com/PacificBiosciences/HiPhase)\n- Create methylation pileups with [modkit](https://github.com/nanoporetech/modkit)\n\n##### Annotation\n\n- Annotate SNVs and INDELs with databases of choice, e.g. [gnomAD](https://gnomad.broadinstitute.org), [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/), [CADD](https://cadd.gs.washington.edu) with [echtvar](https://github.com/brentp/echtvar) and [VEP](https://github.com/Ensembl/ensembl-vep)\n- Annotate repeat expansions with [stranger](https://github.com/Clinical-Genomics/stranger)\n- Annotate SVs with [SVDB](https://github.com/J35P312/SVDB) and [VEP](https://github.com/Ensembl/ensembl-vep)\n\n##### Ranking\n\n- Rank SNVs, INDELs, SVs and CNVs with [GENMOD](https://github.com/Clinical-Genomics/genmod)\n\n##### Filtering\n\n- Filter SNVs, INDELs, SVs and CNVs with [filter_vep](https://www.ensembl.org/vep) and [bcftools](https://samtools.github.io/bcftools/bcftools.html)\n\n## Usage\n\n> [!NOTE]\n> If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.\n\nPrepare a samplesheet with input data:\n\n`samplesheet.csv`\n\n```\nproject,sample,file,family_id,paternal_id,maternal_id,sex,phenotype\nNIST,HG002,/path/to/HG002.fastq.gz,FAM1,HG003,HG004,1,2\nNIST,HG005,/path/to/HG005.bam,FAM1,HG003,HG004,2,1\n```\n\nSupply a reference genome with `--fasta` and choose a matching `--preset` for your data (`revio`, `pacbio`, `ONT_R10`). Now, you can run the pipeline using:\n\n```bash\nnextflow run genomic-medicine-sweden/nallo \\\n    -profile <docker/singularity/.../institute> \\\n    --input samplesheet.csv \\\n    --preset <revio/pacbio/ONT_R10> \\\n    --fasta <reference.fasta> \\\n    --outdir <OUTDIR>\n```\n\nFor more details and further functionality, please refer to the [documentation](http://genomic-medicine-sweden.github.io/nallo/).\n\n## Credits\n\ngenomic-medicine-sweden/nallo was originally written by [Felix Lenner](https://github.com/fellen31).\n\nWe thank the following people for their extensive assistance in the development of this pipeline: [Anders Jemt](https://github.com/jemten), [Annick Renevey](https://github.com/rannick), [Daniel Schmitz](https://github.com/Schmytzi), [Luc\u00eda Pe\u00f1a-P\u00e9rez](https://github.com/Lucpen), [Peter Pruisscher](https://github.com/peterpru) & [Ramprasad Neethiraj](https://github.com/ramprasadn).\n\n## Contributions and Support\n\nIf you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).\n\n## Citations\n\nIf you use genomic-medicine-sweden/nallo for your analysis, please cite it using the following doi: [10.5281/zenodo.13748210](https://doi.org/10.5281/zenodo.13748210).\n\nThis pipeline uses code and infrastructure developed and maintained by the [nf-core](https://nf-co.re) community, reused here under the [MIT license](https://github.com/nf-core/tools/blob/main/LICENSE).\n\n> **The nf-core framework for community-curated bioinformatics pipelines.**\n>\n> Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.\n>\n> _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).\n\nAn extensive list of references for the tools used by the pipeline can be found in the [`docs/CITATIONS.md`](docs/CITATIONS.md) file.\n",
             "hasPart": [
                 {
                     "@id": "main.nf"
@@ -32,13 +32,22 @@
                     "@id": "assets/"
                 },
                 {
+                    "@id": "bin/"
+                },
+                {
                     "@id": "conf/"
                 },
                 {
                     "@id": "docs/"
                 },
                 {
+                    "@id": "docs/images/"
+                },
+                {
                     "@id": "modules/"
+                },
+                {
+                    "@id": "modules/local/"
                 },
                 {
                     "@id": "modules/nf-core/"
@@ -65,7 +74,7 @@
                     "@id": "LICENSE"
                 },
                 {
-                    "@id": "CITATIONS.md"
+                    "@id": "CODE_OF_CONDUCT.md"
                 },
                 {
                     "@id": "modules.json"
@@ -93,7 +102,7 @@
             },
             "mentions": [
                 {
-                    "@id": "#4c035c3d-6568-4734-a023-036963cd52f5"
+                    "@id": "#f2725144-b80b-463c-91ae-39d46ada90e8"
                 }
             ],
             "name": "genomic-medicine-sweden/nallo"
@@ -120,15 +129,25 @@
                 "SoftwareSourceCode",
                 "ComputationalWorkflow"
             ],
+            "creator": [
+                {
+                    "@id": "https://orcid.org/0000-0002-9594-0710"
+                }
+            ],
             "dateCreated": "",
-            "dateModified": "2025-01-16T13:58:29Z",
+            "dateModified": "2025-01-21T10:11:22Z",
             "dct:conformsTo": "https://bioschemas.org/profiles/ComputationalWorkflow/1.0-RELEASE/",
             "keywords": [
-                "genomic-medicine-sweden",
+                "nf-core",
                 "nextflow"
             ],
             "license": [
                 "MIT"
+            ],
+            "maintainer": [
+                {
+                    "@id": "https://orcid.org/0000-0002-9594-0710"
+                }
             ],
             "name": [
                 "genomic-medicine-sweden/nallo"
@@ -160,11 +179,11 @@
             "version": "!>=24.04.2"
         },
         {
-            "@id": "#4c035c3d-6568-4734-a023-036963cd52f5",
+            "@id": "#f2725144-b80b-463c-91ae-39d46ada90e8",
             "@type": "TestSuite",
             "instance": [
                 {
-                    "@id": "#4f5c042b-7c8b-4f88-8158-8fa236b61e21"
+                    "@id": "#fa95f349-822e-4f45-b074-3b6fd7bf37b1"
                 }
             ],
             "mainEntity": {
@@ -173,7 +192,7 @@
             "name": "Test suite for genomic-medicine-sweden/nallo"
         },
         {
-            "@id": "#4f5c042b-7c8b-4f88-8158-8fa236b61e21",
+            "@id": "#fa95f349-822e-4f45-b074-3b6fd7bf37b1",
             "@type": "TestInstance",
             "name": "GitHub Actions workflow for testing genomic-medicine-sweden/nallo",
             "resource": "repos/genomic-medicine-sweden/nallo/actions/workflows/ci.yml",
@@ -196,6 +215,11 @@
             "description": "Additional files"
         },
         {
+            "@id": "bin/",
+            "@type": "Dataset",
+            "description": "Scripts that must be callable from a pipeline process"
+        },
+        {
             "@id": "conf/",
             "@type": "Dataset",
             "description": "Configuration files"
@@ -206,9 +230,19 @@
             "description": "Markdown files for documenting the pipeline"
         },
         {
+            "@id": "docs/images/",
+            "@type": "Dataset",
+            "description": "Images for the documentation files"
+        },
+        {
             "@id": "modules/",
             "@type": "Dataset",
             "description": "Modules used by the pipeline"
+        },
+        {
+            "@id": "modules/local/",
+            "@type": "Dataset",
+            "description": "Pipeline-specific modules"
         },
         {
             "@id": "modules/nf-core/",
@@ -251,9 +285,9 @@
             "description": "The license - should be MIT"
         },
         {
-            "@id": "CITATIONS.md",
+            "@id": "CODE_OF_CONDUCT.md",
             "@type": "File",
-            "description": "Citations needed when using the pipeline"
+            "description": "The nf-core code of conduct"
         },
         {
             "@id": "modules.json",
@@ -290,6 +324,12 @@
             "@type": "Organization",
             "name": "genomic-medicine-sweden/nallo",
             "url": "https://github.com/genomic-medicine-sweden/nallo"
+        },
+        {
+            "@id": "https://orcid.org/0000-0002-9594-0710",
+            "@type": "Person",
+            "email": "52530259+fellen31@users.noreply.github.com",
+            "name": "Felix Lenner"
         }
     ]
 }
